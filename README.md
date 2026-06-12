@@ -41,7 +41,8 @@ the editor, or visit `/play`, to run the bundled sample game and any project sav
 For the desktop version:
 
 ```bash
-composer run native:dev
+composer run native:dev (editor)
+composer run native:dev:game (runtime)
 ```
 
 NativePHP opens the Laravel app in a desktop window while Vite serves the frontend during
