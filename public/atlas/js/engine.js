@@ -1779,7 +1779,7 @@
     Music.play(sysBgm("title"));
     const tw = el("div", "titlewin");
     tw.appendChild(el("div", "title-name", esc(proj.system.title || "Untitled")));
-    tw.appendChild(el("div", "title-sub", "made with RPGAtlas"));
+    tw.appendChild(el("div", "title-sub", "an RPGAtlas adventure"));
     uiLayer.appendChild(tw);
     // decorative title backdrop on the canvas
     drawTitleBackdrop();
@@ -1788,7 +1788,9 @@
       const i = await showList([
         { label: "New Game" },
         { label: "Continue", disabled: !hasSave },
-        { label: "Music: " + (Music.enabled ? "On" : "Off") },
+        { label: "Options" },
+        { label: "Credits" },
+        { label: "Exit" },
       ], { className: "titlemenu", cancellable: false });
       if (i === 0) {
         tw.remove();
@@ -1806,21 +1808,93 @@
           return;
         }
       } else if (i === 2) {
-        Music.setEnabled(!Music.enabled);
-        if (Music.enabled) Music.play(sysBgm("title"));
+        await showTitleOptions();
+      } else if (i === 3) {
+        await showCredits();
+      } else if (i === 4) {
+        await confirmExit();
+        if (Music.enabled && !Music.current) Music.play(sysBgm("title"));
       }
     }
+  }
+  async function showTitleOptions() {
+    let nativeFullscreen = false;
+    while (true) {
+      const i = await showList([
+        { label: "Music: " + (Music.enabled ? "On" : "Off"), help: "Toggle procedural background music." },
+        { label: "Fullscreen: " + (nativeFullscreen ? "On" : "Off"), help: "Switch the NativePHP desktop window in or out of fullscreen." },
+        { label: "Back" },
+      ], { title: "Options", className: "titlemenu optionsmenu" });
+      if (i < 0 || i === 2) return;
+      if (i === 0) {
+        Music.setEnabled(!Music.enabled);
+        if (Music.enabled) Music.play(sysBgm("title"));
+        else Music.stop();
+      } else if (i === 1) {
+        try {
+          const res = await fetch("/nativephp-window/fullscreen", {
+            method: "POST",
+            headers: { "Accept": "application/json" },
+          });
+          if (!res.ok) throw new Error("NativePHP fullscreen is unavailable here.");
+          const state = await res.json();
+          nativeFullscreen = !!state.fullscreen;
+        } catch (e) {
+          console.warn("Fullscreen unavailable.", e);
+          sysSe("buzzer");
+        }
+      }
+    }
+  }
+  async function showCredits() {
+    const win = el("div", "win creditswin",
+      "<div class='credits-kicker'>Created with</div>" +
+      "<div class='credits-title'>RPGAtlas</div>" +
+      "<div class='credits-copy'>Engine, editor, procedural art, sound, and music by the RPGAtlas contributors.</div>" +
+      "<div class='credits-copy'>Laravel and NativePHP desktop port by this project.</div>" +
+      "<div class='credits-hint'>Press confirm or cancel to return</div>");
+    uiLayer.appendChild(win);
+    await new Promise((resolve) => {
+      const ui = { el: win, onKey(k) { if (k === "ok" || k === "cancel") { removeUI(ui); resolve(); } } };
+      win.addEventListener("click", () => { removeUI(ui); resolve(); });
+      pushUI(ui);
+    });
+  }
+  async function confirmExit() {
+    const i = await showList([
+      { label: "Exit Game" },
+      { label: "Back" },
+    ], { title: "Exit", className: "titlemenu optionsmenu" });
+    if (i !== 0) return;
+    Music.stop();
+    window.close();
+    setTimeout(() => {
+      const note = el("div", "win creditswin",
+        "<div class='credits-title'>Thanks for playing</div>" +
+        "<div class='credits-copy'>Your browser may not allow this window to close itself.</div>");
+      uiLayer.appendChild(note);
+    }, 250);
   }
   function drawTitleBackdrop() {
     const g = ctx;
     const grad = g.createLinearGradient(0, 0, 0, SCREEN_H);
-    grad.addColorStop(0, "#1a2340"); grad.addColorStop(1, "#2c4a3a");
+    grad.addColorStop(0, "#111a35"); grad.addColorStop(0.55, "#263d52"); grad.addColorStop(1, "#263923");
     g.fillStyle = grad; g.fillRect(0, 0, SCREEN_W, SCREEN_H);
+    const glow = g.createRadialGradient(SCREEN_W * 0.5, SCREEN_H * 0.32, 20, SCREEN_W * 0.5, SCREEN_H * 0.32, SCREEN_W * 0.52);
+    glow.addColorStop(0, "rgba(255,226,160,0.22)");
+    glow.addColorStop(1, "rgba(255,226,160,0)");
+    g.fillStyle = glow; g.fillRect(0, 0, SCREEN_W, SCREEN_H);
     // procedural hills + trees
-    g.fillStyle = "#22382c";
+    g.fillStyle = "#1f342d";
     g.beginPath(); g.moveTo(0, SCREEN_H);
     for (let x = 0; x <= SCREEN_W; x += 40) {
-      g.lineTo(x, SCREEN_H - 90 - 40 * Math.sin(x / 130));
+      g.lineTo(x, SCREEN_H - 102 - 34 * Math.sin(x / 130));
+    }
+    g.lineTo(SCREEN_W, SCREEN_H); g.fill();
+    g.fillStyle = "#162820";
+    g.beginPath(); g.moveTo(0, SCREEN_H);
+    for (let x = 0; x <= SCREEN_W; x += 50) {
+      g.lineTo(x, SCREEN_H - 58 - 28 * Math.cos(x / 150));
     }
     g.lineTo(SCREEN_W, SCREEN_H); g.fill();
     for (let i = 0; i < 9; i++) {

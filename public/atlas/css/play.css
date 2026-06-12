@@ -101,13 +101,46 @@ body { font: 15px/1.5 "Segoe UI", system-ui, sans-serif; color: #f0f2f8; }
 .statuswin li { white-space: normal; }
 
 /* ---------- title ---------- */
-.titlewin { position: absolute; top: 70px; left: 0; right: 0; text-align: center; z-index: 10; pointer-events: none; }
-.title-name {
-  font-size: 52px; font-weight: 800; letter-spacing: 2px; color: #fff;
-  text-shadow: 0 4px 0 #1a2c50, 0 8px 24px rgba(0,0,0,0.8);
+.titlewin {
+  position: absolute; top: 54px; left: 7%; right: 7%; text-align: center; z-index: 10; pointer-events: none;
+  padding: 18px 24px 10px;
+  background: linear-gradient(180deg, rgba(7,11,22,0.26), rgba(7,11,22,0));
+  border-radius: 18px;
 }
-.title-sub { color: #f0d8a0; margin-top: 6px; font-style: italic; letter-spacing: 1px; text-shadow: 0 1px 4px rgba(0,0,0,0.8); }
-.titlemenu { top: 62%; min-width: 220px; text-align: center; }
+.title-name {
+  font-size: 56px; font-weight: 900; letter-spacing: 0; line-height: 1; color: #fff7dc;
+  text-shadow: 0 4px 0 #172242, 0 8px 24px rgba(0,0,0,0.82), 0 0 34px rgba(255,216,106,0.24);
+}
+.title-sub {
+  color: #f0d8a0; margin-top: 10px; font-weight: 700; text-transform: uppercase;
+  font-size: 12px; letter-spacing: 0; text-shadow: 0 1px 4px rgba(0,0,0,0.8);
+}
+.titlemenu {
+  top: auto; left: 50%; bottom: 64px; min-width: 260px; text-align: center;
+  padding: 14px;
+}
+.titlemenu .menu-list li {
+  min-height: 40px; padding: 7px 18px; margin: 2px 0;
+  font-weight: 800; letter-spacing: 0;
+}
+.titlemenu .menu-list li.sel {
+  background: linear-gradient(90deg, rgba(217,161,63,0.34), rgba(90,130,220,0.42));
+  outline-color: #ffe2a0;
+}
+.optionsmenu { min-width: 330px; text-align: left; }
+.creditswin {
+  left: 50%; top: 50%; transform: translate(-50%, -50%);
+  width: min(520px, 86%); text-align: center; padding: 24px 28px;
+}
+.credits-kicker {
+  color: #9fb7e2; font-size: 12px; font-weight: 800; text-transform: uppercase;
+}
+.credits-title {
+  color: #fff7dc; font-size: 30px; font-weight: 900; line-height: 1.1; margin: 4px 0 12px;
+  text-shadow: 0 3px 0 #172242, 0 0 24px rgba(255,216,106,0.22);
+}
+.credits-copy { color: #d9e1f4; margin: 8px 0; }
+.credits-hint { color: #9fb0d2; font-size: 12px; margin-top: 16px; }
 
 /* ---------- battle ---------- */
 .battlewin { position: absolute; inset: 0; z-index: 18; display: flex; flex-direction: column; background: linear-gradient(180deg, rgba(8,10,22,0.55), rgba(8,10,22,0.8)); }

@@ -158,6 +158,10 @@ To test the exported game in the NativePHP window:
 composer run native:dev:game
 ```
 
+The NativePHP game payload is a self-contained HTML export. If you change player code, menus, CSS,
+or game data, run **File > Export Standalone Game > NativePHP Desktop** again before testing or
+building.
+
 To package the Windows desktop game:
 
 ```bash

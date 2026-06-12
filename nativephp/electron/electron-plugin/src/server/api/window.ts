@@ -25,6 +25,29 @@ router.post('/minimize', (req, res) => {
     res.sendStatus(200);
 });
 
+router.post('/fullscreen', (req, res) => {
+    const { id, fullscreen, fullscreenable } = req.body;
+    const window = state.windows[id];
+
+    if (window === undefined) {
+        res.sendStatus(404);
+        return;
+    }
+
+    window.setFullScreenable(fullscreenable !== false);
+
+    if (fullscreen === 'toggle') {
+        window.setFullScreen(!window.isFullScreen());
+    } else {
+        window.setFullScreen(Boolean(fullscreen));
+    }
+
+    res.json({
+        fullscreen: window.isFullScreen(),
+        fullscreenable: window.isFullScreenable(),
+    });
+});
+
 router.post('/resize', (req, res) => {
     const { id, width, height } = req.body;
 
