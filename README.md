@@ -142,6 +142,30 @@ This Laravel port gives you two publishing paths:
 Inside RPGAtlas itself, **File > Export Standalone Game** still exports the current project as a
 standalone HTML game or Windows launcher, matching upstream behavior.
 
+For a true NativePHP desktop build, choose **File > Export Standalone Game > NativePHP Desktop** in
+the editor. That stores the current game as Laravel's desktop payload at `/native-game`.
+
+By default, NativePHP still opens the editor:
+
+```bash
+composer run native:dev
+```
+
+To test the exported game in the NativePHP window:
+
+```bash
+composer run native:dev:game
+```
+
+To package the Windows desktop game:
+
+```bash
+composer run native:build:game:win
+```
+
+The upstream **Windows EXE** option remains available, but it is intentionally a small browser
+launcher rather than a NativePHP application.
+
 ## Project format
 
 RPGAtlas projects are saved as one JSON document and autosaved to local browser storage:

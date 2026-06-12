@@ -235,9 +235,12 @@
   function scriptText(s) {
     return String(s).replace(/<\/script/gi, "<\\/script");
   }
-  async function fetchBuildSource(path) {
+  function atlasUrl(path) {
     const base = new URL(window.RPGATLAS_BASE || "/atlas/", location.origin);
-    const res = await fetch(new URL(path, base).href);
+    return new URL(path, base).href;
+  }
+  async function fetchBuildSource(path) {
+    const res = await fetch(atlasUrl(path));
     if (!res.ok) throw new Error("Could not load " + path + " (" + res.status + ").");
     return res.text();
   }
@@ -250,8 +253,7 @@
     });
   }
   async function fetchDataUrl(path) {
-    const base = new URL(window.RPGATLAS_BASE || "/atlas/", location.origin);
-    const res = await fetch(new URL(path, base).href, { cache: "no-store" });
+    const res = await fetch(atlasUrl(path), { cache: "no-store" });
     if (!res.ok) throw new Error("Could not load " + path + " (" + res.status + ").");
     return blobDataUrl(await res.blob());
   }
@@ -308,7 +310,7 @@ window.RPGATLAS_GAME_ID = ${JSON.stringify(gameId)};
   async function exportWindowsExecutable() {
     const [game, launcherRes] = await Promise.all([
       buildStandaloneGame(),
-      fetch("bin/RPGAtlasLauncher.exe"),
+      fetch(atlasUrl("bin/RPGAtlasLauncher.exe")),
     ]);
     if (!launcherRes.ok) throw new Error("Could not load the Windows launcher (" + launcherRes.status + ").");
     const marker = new TextEncoder().encode("RPGATLAS_GAME_PAYLOAD_V1\n");
@@ -316,23 +318,61 @@ window.RPGATLAS_GAME_ID = ${JSON.stringify(gameId)};
     downloadBlob(new Blob([await launcherRes.arrayBuffer(), marker, payload],
       { type: "application/vnd.microsoft.portable-executable" }), game.baseName + ".exe");
   }
+  async function prepareNativePhpDesktopExport() {
+    const game = await buildStandaloneGame();
+    const csrf = document.querySelector('meta[name="csrf-token"]');
+    const res = await fetch("/nativephp-game-export", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+        ...(csrf ? { "X-CSRF-TOKEN": csrf.getAttribute("content") } : {}),
+      },
+      body: JSON.stringify({
+        html: game.html,
+        title: proj.system.title || "RPGAtlas Game",
+        baseName: game.baseName,
+      }),
+    });
+    if (!res.ok) {
+      let details = "";
+      try {
+        const body = await res.clone().json();
+        details = body.message || JSON.stringify(body);
+      } catch (_) {
+        details = await res.text();
+      }
+      throw new Error("Could not prepare NativePHP desktop export (" + res.status + ")" + (details ? ": " + details.slice(0, 300) : "."));
+    }
+    return res.json();
+  }
   function openStandaloneExport() {
     const content = h("div", null,
       h("p", null, "Build the current project as one self-contained game file. The editor, engine folder, web server, and project .json are not required."),
-      h("p", null, "Windows EXE includes a small launcher that extracts the game and opens it in the player's default browser. Standalone HTML works across platforms."),
-      h("p", { class: "dim" }, "The launcher is unsigned, so Windows may show a security warning. Save slots are kept in the player's browser."),
+      h("p", null, "Windows EXE is the upstream browser launcher. NativePHP Desktop prepares this game as the payload for this Laravel app's desktop build."),
+      h("p", { class: "dim" }, "The NativePHP app opens the editor by default. Set RPGATLAS_NATIVE_START=game when you want the desktop app to boot into the exported game."),
     );
     modal({
       title: "Export Standalone Game",
       content,
       buttons: [
-        { label: "Windows EXE", primary: true, async onClick(close) {
+        { label: "Browser EXE", async onClick(close) {
           try {
             await exportWindowsExecutable();
             close();
             flashStatus("Windows game executable exported");
           } catch (e) {
             alert("Game export failed: " + e.message);
+          }
+        } },
+        { label: "NativePHP Desktop", primary: true, async onClick(close) {
+          try {
+            const result = await prepareNativePhpDesktopExport();
+            close();
+            flashStatus("NativePHP desktop payload prepared");
+            alert("NativePHP desktop payload prepared.\n\nOpen editor normally with:\ncomposer run native:dev\n\nTest the exported game with:\ncomposer run native:dev:game\n\nBuild Windows game with:\ncomposer run native:build:game:win");
+          } catch (e) {
+            alert("NativePHP export failed: " + e.message);
           }
         } },
         { label: "Standalone HTML", async onClick(close) {

@@ -2,8 +2,9 @@
 
 namespace App\Providers;
 
-use Native\Desktop\Facades\Window;
+use Illuminate\Support\Facades\Storage;
 use Native\Desktop\Contracts\ProvidesPhpIni;
+use Native\Desktop\Facades\Window;
 
 class NativeAppServiceProvider implements ProvidesPhpIni
 {
@@ -13,7 +14,13 @@ class NativeAppServiceProvider implements ProvidesPhpIni
      */
     public function boot(): void
     {
-        Window::open();
+        $window = Window::open()
+            ->title(config('app.name', 'RPGAtlas'))
+            ->maximized();
+
+        if (env('RPGATLAS_NATIVE_START', 'editor') === 'game' && Storage::exists('rpgatlas/nativephp-game.html')) {
+            $window->route('atlas.native-game');
+        }
     }
 
     /**

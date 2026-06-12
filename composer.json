@@ -75,6 +75,13 @@
         "native:dev": [
             "Composer\\Config::disableProcessTimeout",
             "npx concurrently -k -c \"#93c5fd,#c4b5fd\" \"php artisan native:run --no-interaction\" \"npm run dev\" --names=app,vite"
+        ],
+        "native:dev:game": [
+            "Composer\\Config::disableProcessTimeout",
+            "npx concurrently -k -c \"#93c5fd,#c4b5fd\" \"RPGATLAS_NATIVE_START=game php artisan native:run --no-interaction\" \"npm run dev\" --names=app,vite"
+        ],
+        "native:build:game:win": [
+            "RPGATLAS_NATIVE_START=game php artisan native:build win x64"
         ]
     },
     "extra": {
