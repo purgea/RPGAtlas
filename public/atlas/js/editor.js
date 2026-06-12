@@ -365,14 +365,14 @@ window.RPGATLAS_GAME_ID = ${JSON.stringify(gameId)};
             alert("Game export failed: " + e.message);
           }
         } },
-        { label: "NativePHP Desktop", primary: true, async onClick(close) {
+        { label: "Windows EXE", primary: true, async onClick(close) {
           try {
             const result = await prepareNativePhpDesktopExport();
             close();
-            flashStatus("NativePHP desktop payload prepared");
-            alert("NativePHP desktop payload prepared.\n\nOpen editor normally with:\ncomposer run native:dev\n\nTest the exported game with:\ncomposer run native:dev:game\n\nBuild Windows game with:\ncomposer run native:build:game:win");
+            flashStatus("Windows EXE payload prepared");
+            alert("Windows EXE payload prepared.\n\nOpen editor normally with:\ncomposer run native:dev\n\nTest the exported game with:\ncomposer run native:dev:game\n\nBuild Windows game with:\ncomposer run native:build:game:win");
           } catch (e) {
-            alert("NativePHP export failed: " + e.message);
+            alert("Windows EXE export failed: " + e.message);
           }
         } },
         { label: "Standalone HTML", async onClick(close) {

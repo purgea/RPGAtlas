@@ -15,6 +15,7 @@ class NativeAppServiceProvider implements ProvidesPhpIni
     public function boot(): void
     {
         $window = Window::open()
+            ->hideMenu()
             ->title(config('app.name', 'RPGAtlas'))
             ->maximized();
 
