@@ -141,7 +141,7 @@ const RA = {
     // v3 system options (screen, UI, fonts, sounds, transparency, battle view)
     const sys = p.system;
     if (sys.startTransparent == null) sys.startTransparent = false;
-    if (!sys.battleView) sys.battleView = "side";
+    if (!sys.battleView) sys.battleView = "cinematic";
     if (!sys.screenWidth) sys.screenWidth = 816;
     if (!sys.screenHeight) sys.screenHeight = 624;
     if (sys.uiWidth == null) sys.uiWidth = 0;
@@ -513,7 +513,7 @@ const DataDefaults = (() => {
         currency: "G",
         switches: [], variables: [],
         startTransparent: false,
-        battleView: "side",
+        battleView: "cinematic",
         screenWidth: 816, screenHeight: 624,
         uiWidth: 0, uiHeight: 0,
         screenScale: 1.6,

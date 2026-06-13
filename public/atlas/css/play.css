@@ -239,6 +239,76 @@ body { font: 15px/1.5 "Segoe UI", system-ui, sans-serif; color: #f0f2f8; }
 .battlewin.side .enemy-spr.acting { transform: translateX(26px); }
 .battlewin.side .enemy-spr.dead { transform: translateY(20px); }
 
+/* ---------- cinematic battle ---------- */
+.battlewin.cinematic {
+  background:
+    radial-gradient(ellipse at 50% 34%, rgba(94,116,170,0.42), transparent 42%),
+    linear-gradient(180deg, rgba(7,9,20,0.72) 0%, rgba(15,19,36,0.88) 52%, rgba(5,7,14,0.96) 100%);
+}
+.battlewin.cinematic .battle-field {
+  flex: 1; display: grid; grid-template-rows: minmax(150px, 1fr) 170px;
+  position: relative; overflow: hidden;
+}
+.battlewin.cinematic .battle-field::before {
+  content: ""; position: absolute; left: 9%; right: 9%; bottom: 54px; height: 42%;
+  background: linear-gradient(180deg, rgba(198,214,255,0.12), rgba(68,76,106,0.18));
+  clip-path: polygon(32% 0, 68% 0, 100% 100%, 0 100%);
+  border-bottom: 2px solid rgba(218,226,255,0.22);
+  filter: blur(.2px);
+}
+.battlewin.cinematic .battle-field::after {
+  content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 38%;
+  background: linear-gradient(180deg, rgba(0,0,0,0), rgba(0,0,0,0.34));
+  pointer-events: none;
+}
+.battlewin.cinematic .battle-enemies {
+  flex: none; align-items: end; justify-content: center; gap: clamp(18px, 5vw, 54px);
+  padding: 34px 36px 0; perspective: 620px;
+}
+.battlewin.cinematic .enemy-spr {
+  transform: translateY(10px) scale(.82); transform-origin: 50% 100%;
+}
+.battlewin.cinematic .enemy-spr:nth-child(2n) { transform: translateY(2px) scale(.74); }
+.battlewin.cinematic .enemy-spr:nth-child(3n) { transform: translateY(18px) scale(.9); }
+.battlewin.cinematic .enemy-spr.acting { transform: translateY(28px) scale(.95); }
+.battlewin.cinematic .enemy-spr.dead { transform: translateY(38px) scale(.75); }
+.cinematic-actor {
+  z-index: 5; align-self: end; justify-self: center; text-align: center;
+  width: 190px; height: 158px; position: relative;
+  transition: transform .25s, filter .35s, opacity .35s;
+}
+.cinematic-actor canvas {
+  width: 144px; height: 144px; image-rendering: pixelated;
+  filter: drop-shadow(0 14px 13px rgba(0,0,0,.7));
+  transform-origin: 50% 94%;
+  animation: cinematic-ready 1.75s ease-in-out infinite;
+}
+.cinematic-actor .actor-name { margin-top: -18px; font-size: 13px; }
+.cinematic-actor.acting { transform: translateY(-18px) scale(1.08); }
+.cinematic-actor.hurt canvas { animation: ahurt 0.4s; }
+.cinematic-actor.dead { opacity: .42; filter: grayscale(1); }
+.cinematic-actor.dead canvas { animation: none; transform: rotate(74deg) translateX(20px); }
+.battlewin.cinematic .battle-log,
+.battlewin.cinematic .battle-party { margin-left: 14px; margin-right: 14px; }
+.battlewin.cinematic .battle-party {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 4px 12px;
+}
+.battlewin.cinematic .brow {
+  padding: 3px 8px; border: 1px solid transparent; border-radius: 6px;
+}
+.battlewin.cinematic .brow.active {
+  color: #fff4c8; border-color: rgba(255,216,106,.42);
+  background: rgba(255,216,106,.08);
+}
+.battlewin.cinematic .cmdwin {
+  left: 50%; bottom: 168px; transform: translateX(-50%); min-width: 210px;
+}
+.battlewin.cinematic .targetwin { top: 28%; }
+@keyframes cinematic-ready {
+  0%, 100% { transform: translateY(2px) scale(1); }
+  50% { transform: translateY(-3px) scale(1.015); }
+}
+
 /* ---------- pooled battle particles ---------- */
 .fx-particle {
   position: absolute; display: block; opacity: 0; pointer-events: none;
@@ -278,9 +348,9 @@ body { font: 15px/1.5 "Segoe UI", system-ui, sans-serif; color: #f0f2f8; }
 .fx-number-death { color: #d8deef; font-size: 16px; letter-spacing: 2px; }
 
 @media (prefers-reduced-motion: reduce) {
-  .enemy-spr canvas, .actor-spr canvas { animation: none; }
+  .enemy-spr canvas, .actor-spr canvas, .cinematic-actor canvas { animation: none; }
   .battlewin.shake { animation: none; }
-  .actor-spr.acting, .battlewin.side .enemy-spr.acting { transform: none; }
+  .actor-spr.acting, .cinematic-actor.acting, .battlewin.side .enemy-spr.acting, .battlewin.cinematic .enemy-spr.acting { transform: none; }
 }
 
 /* ---------- game over ---------- */

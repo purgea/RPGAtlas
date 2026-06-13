@@ -1146,15 +1146,31 @@
       }).filter(Boolean);
 
       const sideView = proj.system.battleView === "side";
-      const win = el("div", "battlewin" + (sideView ? " side" : ""));
+      const cinematicView = proj.system.battleView === "cinematic";
+      const win = el("div", "battlewin" + (sideView ? " side" : "") + (cinematicView ? " cinematic" : ""));
       const fxLayer = el("div", "battle-fx");
       const enemyArea = el("div", "battle-enemies");
       const log = el("div", "battle-log");
       const partyArea = el("div", "battle-party");
       win.appendChild(fxLayer);
-      if (sideView) {
+      let cinematicActor = null;
+      let cinematicActorCanvas = null;
+      let cinematicActorName = null;
+      let cinematicActorStates = null;
+      if (sideView || cinematicView) {
         const fieldRow = el("div", "battle-field");
         fieldRow.appendChild(enemyArea);
+        if (cinematicView) {
+          cinematicActor = el("div", "cinematic-actor");
+          cinematicActorCanvas = document.createElement("canvas");
+          cinematicActorCanvas.width = cinematicActorCanvas.height = TILE;
+          cinematicActor.appendChild(cinematicActorCanvas);
+          cinematicActorName = el("div", "actor-name");
+          cinematicActorStates = el("div", "battler-states");
+          cinematicActor.appendChild(cinematicActorName);
+          cinematicActor.appendChild(cinematicActorStates);
+          fieldRow.appendChild(cinematicActor);
+        }
         win.appendChild(fieldRow);
       } else {
         win.appendChild(enemyArea);
@@ -1165,7 +1181,7 @@
       const sprs = enemies.map((en) => {
         const spriteClass = String(en.d.sprite || "slime").replace(/[^a-z0-9_-]/gi, "-");
         const wrap = el("div", "enemy-spr enemy-" + spriteClass);
-        const source = Assets.enemyCanvas(en.d.sprite, en.d.color, sideView ? 108 : 132);
+        const source = Assets.enemyCanvas(en.d.sprite, en.d.color, sideView || cinematicView ? 108 : 132);
         const battlerCanvas = document.createElement("canvas");
         battlerCanvas.width = source.width; battlerCanvas.height = source.height;
         battlerCanvas.getContext("2d").drawImage(source, 0, 0);
@@ -1225,6 +1241,7 @@
         return { x: r.left - wr.left + r.width * 0.5, y: r.top - wr.top + r.height * 0.43 };
       }
       function actorElement(a) {
+        if (cinematicView && cinematicActor && a && cinematicActor._actor === a) return cinematicActor;
         const i = G.party.indexOf(a);
         return actorSprs[i] || partyArea.children[i] || partyArea;
       }
@@ -1324,7 +1341,7 @@
       }
       function refreshParty() {
         partyArea.innerHTML = G.party.map((a) =>
-          '<div class="brow' + (a.hp <= 0 ? " dead" : "") + '"><b>' + esc(a.name) + "</b> " +
+          '<div class="brow' + (a.hp <= 0 ? " dead" : "") + (cinematicView && cinematicActor && cinematicActor._actor === a ? " active" : "") + '"><b>' + esc(a.name) + "</b> " +
           "HP " + a.hp + "/" + param(a, "mhp") + " " + bar(a.hp, param(a, "mhp"), "#58c46a") +
           " MP " + a.mp + "/" + param(a, "mmp") + " " + bar(a.mp, param(a, "mmp"), "#5a8ad8") +
           stateTagsHtml(a) + "</div>"
@@ -1333,6 +1350,22 @@
           const a = G.party[i];
           if (a) w.classList.toggle("dead", a.hp <= 0);
         });
+        if (cinematicView && cinematicActorStates && cinematicActor && cinematicActor._actor) {
+          cinematicActorStates.innerHTML = stateTagsHtml(cinematicActor._actor);
+          cinematicActor.classList.toggle("dead", cinematicActor._actor.hp <= 0);
+        }
+      }
+      function updateCinematicActor(a) {
+        if (!cinematicView || !cinematicActor || !a) return;
+        cinematicActor._actor = a;
+        cinematicActor.classList.toggle("dead", a.hp <= 0);
+        cinematicActorName.textContent = a.name;
+        cinematicActorStates.innerHTML = stateTagsHtml(a);
+        const g = cinematicActorCanvas.getContext("2d");
+        g.clearRect(0, 0, TILE, TILE);
+        const ci = Assets.charsetIndex(a.charset);
+        if (ci >= 0) g.drawImage(Assets.charFrameCanvas(ci, 3, 1), 0, 0);
+        refreshParty();
       }
       function refreshEnemies() {
         enemies.forEach((en, i) => {
@@ -1461,6 +1494,9 @@
           const a = G.party[i], slot = w.querySelector(".battler-states");
           if (a && slot) slot.innerHTML = stateTagsHtml(a);
         });
+        if (cinematicView && cinematicActorStates && cinematicActor && cinematicActor._actor) {
+          cinematicActorStates.innerHTML = stateTagsHtml(cinematicActor._actor);
+        }
         refreshParty();
       }
       async function addStateTo(b, stateId) {
@@ -1536,19 +1572,19 @@
       }
       // ---- side-view battler animations ----
       function actorFlash(a) {
-        const w = actorSprs[G.party.indexOf(a)];
+        const w = cinematicView && cinematicActor && cinematicActor._actor === a ? cinematicActor : actorSprs[G.party.indexOf(a)];
         if (!w) return;
         w.classList.remove("hurt"); void w.offsetWidth; w.classList.add("hurt");
       }
       function actorStep(a) {
-        const w = actorSprs[G.party.indexOf(a)];
+        const w = cinematicView && cinematicActor && cinematicActor._actor === a ? cinematicActor : actorSprs[G.party.indexOf(a)];
         if (!w) return;
         w.classList.add("acting");
         burst(w, "dust", { count: 5, radius: 20, size: 5, duration: 330 });
         setTimeout(() => w.classList.remove("acting"), 380);
       }
       function enemyStep(en) {
-        if (!sideView || !sprs[en.i]) return;
+        if ((!sideView && !cinematicView) || !sprs[en.i]) return;
         sprs[en.i].classList.add("acting");
         burst(sprs[en.i], "dust", { count: 5, radius: 20, size: 5, duration: 330 });
         setTimeout(() => sprs[en.i].classList.remove("acting"), 380);
@@ -1563,6 +1599,7 @@
           // ---- collect party commands ----
           const cmds = [];
           for (const a of livingP()) {
+            updateCinematicActor(a);
             refreshParty();
             if (cannotAct(a)) { cmds.push({ type: "stunned", actor: a }); continue; }
             const c = await actorCommand(a);
@@ -1600,6 +1637,7 @@
             if (c.actor) {
               // ---------- party side ----------
               const a = c.actor;
+              updateCinematicActor(a);
               if (c.type === "stunned") { await say(a.name + " can't move!", 500); continue; }
               if (c.type === "guard") {
                 burst(actorElement(a), "status", { color: "#9ab8f0", count: 10, radius: 30 });
@@ -1674,6 +1712,7 @@
               const pool = livingP();
               if (!pool.length) break;
               const t = pool[rnd(pool.length)];
+              updateCinematicActor(t);
               enemyStep(en);
               let dmg;
               if (c.skill && c.skill.type !== "heal") {

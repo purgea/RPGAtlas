@@ -2266,7 +2266,11 @@ window.RPGATLAS_GAME_ID = ${JSON.stringify(gameId)};
         box.appendChild(h("div", { class: "subhead" }, "Starting party"));
         box.appendChild(h("div", { class: "frow" }, partyRow));
         box.appendChild(row(field("Starting gold", nIn(s, "startGold", 0)), field("Currency name", tIn(s, "currency")),
-          field("Battle view", sel(s, "battleView", [{ v: "side", l: "Side view (party sprites)" }, { v: "front", l: "Front view (classic)" }]))));
+          field("Battle view", sel(s, "battleView", [
+            { v: "cinematic", l: "Cinematic (behind actor)" },
+            { v: "side", l: "Side view (party sprites)" },
+            { v: "front", l: "Front view (classic)" },
+          ]))));
 
         box.appendChild(h("div", { class: "subhead" }, "Screen"));
         box.appendChild(row(field("Game width (px)", nIn(s, "screenWidth", 384, 3840)),
@@ -3137,7 +3141,7 @@ atlas.onMapLoad((map) => {
 <h3>Tools</h3>
 <ul>
 <li><b>Database</b>: actors, classes, skills, items, equipment, enemies, troops, states, types, switches, variables, system.</li>
-<li><b>System tab</b>: screen size, UI area, screen scale, fonts &amp; font size, window opacity, system sounds &amp; music, side-view or front-view battles, start-transparent player.</li>
+<li><b>System tab</b>: screen size, UI area, screen scale, fonts &amp; font size, window opacity, system sounds &amp; music, cinematic, side-view or front-view battles, start-transparent player.</li>
 <li><b>States</b>: poison / stun / regen-style battle effects, inflicted or cured by skills.</li>
 <li><b>Plugin Manager</b>: project-embedded JavaScript that runs at game boot, with map-load and per-frame hooks.</li>
 <li><b>Character Generator</b>: build original walking sprites; they appear in every sprite picker.</li>
