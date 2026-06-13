@@ -47,6 +47,11 @@ composer run native:dev:game (runtime)
 
 NativePHP opens the Laravel app in a desktop window while Vite serves the frontend during
 development.
+Latest RPGAtlas changes can be pulled directly with the subtree:
+
+```
+git subtree pull --prefix=public/atlas upstream main --squash
+```
 
 ## What changed from upstream RPGAtlas
 
