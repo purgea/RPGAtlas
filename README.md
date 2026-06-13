@@ -50,6 +50,8 @@ development.
 Latest RPGAtlas changes can be pulled directly with the subtree:
 
 ```
+git update-index --refresh
+git status --short
 git subtree pull --prefix=public/atlas upstream main --squash
 ```
 
