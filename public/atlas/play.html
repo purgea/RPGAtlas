@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>RPGAtlas Player</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" type="image/svg+xml" href="img/system/rpgatlas-logo.svg">
+<link rel="stylesheet" href="css/play.css?v=9">
+</head>
+<body>
+  <div id="stage">
+    <canvas id="gamecanvas"></canvas>
+  </div>
+  <script src="js/assets.js?v=10"></script>
+  <script src="js/gl.js?v=4"></script>
+  <script src="js/sfx.js?v=8"></script>
+  <script src="js/plugins.js?v=8"></script>
+  <script src="js/data.js?v=14"></script>
+  <script>
+    window.RPGAtlasDeps = { Assets, DataDefaults, GLRender, Music, RA, Sfx };
+  </script>
+  <script type="module" src="js/engine.js?v=19"></script>
+</body>
+</html>
